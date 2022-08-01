@@ -10,10 +10,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class RequestTest02
+ * Servlet implementation class ResponseRedirectTest
  */
-@WebServlet("/requestTest02.do")
-public class RequestTest02 extends HttpServlet {
+@WebServlet("/responseRedirectTest.do")
+public class ResponseRedirectTest extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -21,41 +21,26 @@ public class RequestTest02 extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
+		
+		//파라미터값 받기
+		String userName=request.getParameter("username");
+		String tel=request.getParameter("tel");
+		
+		//setAttribute()메서드로 세팅한 데이터 받기 => getAttribute()메서드 이용
+		//형식) Request객체변수.getAttribute.getAttribute("키값");
+		response.setCharacterEncoding("utf-8");
 		response.setContentType("text/html; charset=utf-8");
-		PrintWriter out=response.getWriter();
-		
-		int num1=Integer.parseInt(request.getParameter("num1"));
-		int num2=Integer.parseInt(request.getParameter("num2"));
-		String str=request.getParameter("calc");
-		float res=0;
-		switch (str) {
-		case "+":
-			res=num1+num2;
-			break;
-		case "-":
-			res=num1-num2;
-			break;
-		case "*":
-			res=num1*num2;
-			break;
-		case "/":
-			res=num1/num2;
-			break;
-		case "%":
-			res=num1%num2;
-			break;
-
-		default:
-			break;
-		}
-		
+	  
+		PrintWriter out = response.getWriter();
+	  
 		out.println("<html><head><meta charset='utf-8'>");
-		out.println("<title>계산결과</title></head>");
+		out.println("<title>Redirect방식 연습</title></head>");
 		out.println("<body>");
-		out.println("<h1>계산 결과</h1><hr>");
-		out.println(num1+str+num2+"="+res+"<br>");
-		out.printf("%d %s %d = %.1f",num1,str,num2,res);
-		out.println("</body></html>");
+		out.println("<h3>Redirect 처리 결과</h3>");
+		out.println("<table border='1'>");
+		out.println("<tr><td>이름</td><td>" + userName + "</td></tr>");
+		out.println("<tr><td>전화</td><td>"+ tel +"</td></tr>");
+		out.println("</table></body></html>");
 	}
 
 	/**
