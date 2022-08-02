@@ -24,8 +24,8 @@
 				}
 			}	
 		%>
-		ID:<input type="text" name="userId" value="<%=idValue %>"><br>
-		PASS:<input type="password" name="pass"><br>
+		ID:<input type="text" name="userId" placeholder="id를 입력해주세요." value="<%=idValue %>"><br>
+		PASS:<input type="password" name="pass" placeholder="passWord를 입력해주세요."><br>
 		<input type="checkbox" name="chb" <%=isChecked%>>
 		id 기억하기<br>
 		<input type="submit" value="Login">
