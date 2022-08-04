@@ -1,0 +1,87 @@
+package kr.or.ddit.file.controller;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import kr.or.ddit.file.service.FileinfoServiceImpl;
+import kr.or.ddit.file.service.IFileinfoService;
+import kr.or.ddit.vo.FileinfoVO;
+
+@WebServlet("/fileDownload.do")
+public class FileDownload extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("utf-8");
+		response.setCharacterEncoding("utf-8");
+		
+		String strFileNo=request.getParameter("fileno");
+		int fileNo=Integer.parseInt(strFileNo);
+		
+		//파일 번호를 이용하면 DB에서 해당 파일 정보를 가져온다.
+		IFileinfoService service = FileinfoServiceImpl.getInstance();
+		FileinfoVO fvo=service.getFileinfo(fileNo);
+		
+		//업로드된 파일들이 저장될 파일경로 지정
+		String uploadPath="d:/d_other/uploadFiles";
+		
+		File f=new File(uploadPath);
+		if(!f.exists()) f.mkdirs(); //경로가 없다면 경로 생성
+		
+		//다운로드할 파일의 File객체 생성	=> 저장 파일명으로 지정한다.
+		File downFile = new File(f,fvo.getSave_file_name());
+		if(downFile.exists()) { //파일이 있을 때...
+			//ContentType설정
+			response.setContentType("application/octet-stream; charset=utf-8");
+			
+			//Response에 content-disposition 헤더 속성을 설정
+			String headerKey = "content-disposition";
+			
+			//이 곳에는 다운로드할 때 클라이언트에 저장될 파일 이름을 지정하는 곳 (원래의 파일명을 기입한다.)
+			String headerValue = "attachment; filename=\""+fvo.getOrigin_file_name()+"\";";
+			response.setHeader(headerKey, headerValue);
+			
+			BufferedInputStream bin = null;
+			BufferedOutputStream bout = null;
+			
+			try {
+				//출력용 스트림 객체 생성 =>response객체 이용
+				bout=new BufferedOutputStream(response.getOutputStream());
+				
+				//파일 입력용 스트림 객체 생성
+				bin=new BufferedInputStream(new FileInputStream(downFile));
+				byte[] temp = new byte[1024];
+				int len = 0;
+				
+				//byte배열을 이용하면 파일 내용을 읽어서 출력용 스트림으로 출력한다.
+				while((len=bin.read(temp))>0) {
+					bout.write(temp, 0, len);
+				}
+				bout.flush();
+			} catch (IOException e) {
+				System.out.println("입출력 오휴: "+e.getMessage());
+			} finally {
+				if(bout!=null) try { bout.close(); }catch(IOException e) {}
+				if(bin!=null) try { bin.close(); }catch(IOException e) {}
+			}
+		}else { //파일이 없을 때...
+			response.setCharacterEncoding("utf-8");
+			response.setContentType("text/html; charset=utf-8");
+			response.getWriter().println("<h3>"+fvo.getOrigin_file_name()+"파일이 존재하지 않습니다.");
+		}
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
+
+}
